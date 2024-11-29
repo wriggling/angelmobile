@@ -1,5 +1,4 @@
 discord
-sys
 discord.ext
 commands
 colorama
