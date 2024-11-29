@@ -5,6 +5,7 @@ from colorama import Fore
 import requests
 import websocket
 from keep_alive import keep_alive
+import os
 
 def clear(): return os.system('cls') if os.name == 'nt' else os.system('clear')
 
