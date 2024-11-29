@@ -1,15 +1,9 @@
 import discord
-import sys
 from discord.ext import commands
 import colorama
 from colorama import Fore
 import requests
 import websocket
-import os
-import pystyle
-from pystyle import Colors, Write, Box, Colorate, Center
-import time
-from time import sleep
 from keep_alive import keep_alive
 
 def clear(): return os.system('cls') if os.name == 'nt' else os.system('clear')
@@ -26,7 +20,7 @@ headers = {"Authorization": token, "Content-Type": "application/json"}
 
 validate = requests.get('https://canary.discordapp.com/api/v9/users/@me', headers=headers)
 if validate.status_code != 200:
-  print("[ERROR] Your token might be invalid. Please check it again.")
+  print(f"{Fore.RED}[ERROR] {Fore.RESET}Your token might be invalid. Please check it again.")
   sys.exit()
 
 userinfo = requests.get('https://canary.discordapp.com/api/v9/users/@me', headers=headers).json()
@@ -40,15 +34,14 @@ t = time.localtime()
 t1 = time.strftime("%H:%M:%S", t)
 
 clear()
-os.system(f"title " + "ANGEL STATUS [@cxcvc on DC]")
 
 
-print(Colorate.Vertical(Colors.cyan_to_blue, f"""
-┏┓┳┓┏┓┏┓┓ 
-┣┫┃┃┃┓┣ ┃ 
-┛┗┛┗┗┛┗┛┗┛
+print(f"""
+{Fore.RED}┏┓┳┓┏┓┏┓┓ 
+{Fore.RED}┣┫┃┃┃┓┣ ┃ 
+{Fore.RED}┛┗┛┗┗┛┗┛┗┛
           \n\n\n\n                     
-""",6))
+""")
 @Angel.command()
 async def help(ctx):
     await ctx.message.delete()
@@ -71,7 +64,7 @@ async def stream(ctx, *, message):
         url=stream_url,
     )
     await Angel.change_presence(activity=stream)
-    print(Colorate.Vertical(Colors.green_to_yellow,f"[-] Set Streaming Status To: {message}",2))
+    print(f"{Fore.GREEN}[-] Set Streaming Status To: {message}")
 
 
 @Angel.command(aliases=["play", "p", "game"])
@@ -82,7 +75,7 @@ async def playing(ctx, *, message):
         name=message
     )
     await Angel.change_presence(activity=game)
-    print(Colorate.Vertical(Colors.green_to_yellow,f"[-] Set Playing Status To: {message}",2))
+    print(f"{Fore.GREEN}[-] Set Playing Status To: {message}")
 
 
 @Angel.command(aliases=["listen", "l"])
@@ -94,7 +87,7 @@ async def listening(ctx, *, message):
             type=discord.ActivityType.listening,
             name=message,
         ))
-    print(Colorate.Vertical(Colors.green_to_yellow,f"[-] Set Listening Status To: {message}",2))
+    print(f"{Fore.GREEN}[-] Set Listening Status To: {message}")
 
 
 @Angel.command(aliases=["watch", "w"])
@@ -106,7 +99,7 @@ async def watching(ctx, *, message):
             type=discord.ActivityType.watching,
             name=message
         ))
-    print(Colorate.Vertical(Colors.green_to_yellow,f"[-] Set Watching Status To: {message}",2))
+    print(f"{Fore.GREEN}[-] Set Watching Status To: {message}")
 
 
 @Angel.command(aliases=["sav", "stopstatus", "stoplistening", "stopplaying", "stopwatching", "stopsreaming"])
@@ -114,7 +107,7 @@ async def stopactivity(ctx):
     await ctx.message.delete()
     await ctx.send(content=f"``[ANGEL] Stop Activity``", delete_after=1),
     await Angel.change_presence(activity=None, status=discord.Status.dnd)
-    print(Colorate.Vertical(Colors.red_to_purple,f"Stopped Activity",2))
+    print(f"{Fore.RED}Stopped Activity")
 
 @Angel.command(aliases=["credits", "cred", "creator", "owner"])
 async def stopactivity(ctx):
