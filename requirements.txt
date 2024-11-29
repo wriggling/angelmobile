@@ -1,0 +1,11 @@
+discord
+sys
+discord.ext
+commands
+coloramak=
+requests
+websocket
+os
+pystyle
+time
+keep_alive
