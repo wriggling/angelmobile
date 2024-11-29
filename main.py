@@ -113,5 +113,5 @@ async def credits(ctx):
     await ctx.message.delete()
     await ctx.send(content=f"**[@AniTool Credits]** \n\n **``Creator: @cxcvc on Discord``** \n **Links: [Github](https://github.com/wriggling)**", delete_after=1)
   
-Angel.run(token, bot=false)
+Angel.run(token, bot=False)
 keep_alive()
