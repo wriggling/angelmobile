@@ -32,9 +32,6 @@ userid = userinfo["id"]
 intents = discord.Intents.all()
 Angel = commands.Bot(command_prefix={prefix}, intents=intents, self_bot=True, help_command=None)
 
-t = time.localtime()
-t1 = time.strftime("%H:%M:%S", t)
-
 clear()
 
 
