@@ -36,9 +36,9 @@ clear()
 
 
 print(f"""
-{Fore.RED}┏┓┳┓┏┓┏┓┓ 
-{Fore.RED}┣┫┃┃┃┓┣ ┃ 
-{Fore.RED}┛┗┛┗┗┛┗┛┗┛
+{Fore.RED}┏┓┳┓┏┓┏┓┓        User: @{username}
+{Fore.RED}┣┫┃┃┃┓┣ ┃        ID: {userid}
+{Fore.RED}┛┗┛┗┗┛┗┛┗┛       Prefix: {prefix}
           \n\n\n\n                     
 """)
 @Angel.command()
@@ -113,5 +113,5 @@ async def credits(ctx):
     await ctx.message.delete()
     await ctx.send(content=f"**[@AniTool Credits]** \n\n **``Creator: @cxcvc on Discord``** \n **Links: [Github](https://github.com/wriggling)**", delete_after=1)
   
-Angel.run(token, bot=False)
+Angel.run(token)
 keep_alive()
