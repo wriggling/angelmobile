@@ -29,7 +29,8 @@ username = userinfo["username"]
 discriminator = userinfo["discriminator"]
 userid = userinfo["id"]
 
-Angel = commands.Bot(command_prefix={prefix}, self_bot=True, help_command=None)
+intents = discord.Intents.all()
+Angel = commands.Bot(command_prefix={prefix}, intents=intents, self_bot=True, help_command=None)
 
 t = time.localtime()
 t1 = time.strftime("%H:%M:%S", t)
