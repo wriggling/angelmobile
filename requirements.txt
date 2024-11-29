@@ -2,5 +2,4 @@ discord
 colorama
 requests
 websocket
-pystyle
 keep_alive
