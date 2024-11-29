@@ -2,7 +2,7 @@ discord
 sys
 discord.ext
 commands
-coloramak=
+colorama
 requests
 websocket
 os
