@@ -33,7 +33,7 @@ intents = discord.Intents.all()
 Angel = commands.Bot(command_prefix={prefix}, intents=intents, self_bot=True, help_command=None)
 
 clear()
-def main()
+def main():
 
 @Angel.command()
 async def help(ctx):
