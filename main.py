@@ -108,8 +108,8 @@ async def stopactivity(ctx):
     await Angel.change_presence(activity=None, status=discord.Status.dnd)
     print(f"{Fore.RED}Stopped Activity")
 
-@Angel.command(aliases=["credits", "cred", "creator", "owner"])
-async def stopactivity(ctx):
+@Angel.command()
+async def credits(ctx):
     await ctx.message.delete()
     await ctx.send(content=f"**[@AniTool Credits]** \n\n **``Creator: @cxcvc on Discord``** \n **Links: [Github](https://github.com/wriggling)**", delete_after=1)
   
