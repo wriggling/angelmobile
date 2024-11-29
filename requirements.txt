@@ -2,7 +2,6 @@ discord
 colorama
 requests
 websocket
-os
 pystyle
 time
 keep_alive
