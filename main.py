@@ -34,13 +34,6 @@ Angel = commands.Bot(command_prefix={prefix}, intents=intents, self_bot=True, he
 
 clear()
 
-
-print(f"""
-{Fore.RED}┏┓┳┓┏┓┏┓┓        User: @{username}
-{Fore.RED}┣┫┃┃┃┓┣ ┃        ID: {userid}
-{Fore.RED}┛┗┛┗┗┛┗┛┗┛       Prefix: {prefix}
-          \n\n\n\n                     
-""")
 @Angel.command()
 async def help(ctx):
     await ctx.message.delete()
@@ -112,6 +105,17 @@ async def stopactivity(ctx):
 async def credits(ctx):
     await ctx.message.delete()
     await ctx.send(content=f"**[@AniTool Credits]** \n\n **``Creator: @cxcvc on Discord``** \n **Links: [Github](https://github.com/wriggling)**", delete_after=1)
-  
-Angel.run(token, bot=False)
+
+def run_joiner():
+  os.system("clear")
+  print(f"""
+{Fore.RED}┏┓┳┓┏┓┏┓┓        User: @{username}
+{Fore.RED}┣┫┃┃┃┓┣ ┃        ID: {userid}
+{Fore.RED}┛┗┛┗┗┛┗┛┗┛       Prefix: {prefix}
+          \n\n\n\n                     
+""")
+  while True:
+    Angel(token)
+
+run_joiner()
 keep_alive()
