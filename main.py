@@ -1,9 +1,8 @@
+import os
+import sys
 import json
 import time
-import os
 import requests
-import colorama
-from colorama import Fore
 import websocket
 from keep_alive import keep_alive
 
@@ -30,7 +29,6 @@ userinfo = requests.get('https://canary.discordapp.com/api/v9/users/@me', header
 username = userinfo["username"]
 discriminator = userinfo["discriminator"]
 userid = userinfo["id"]
-
 
 def joiner(token, status):
     ws = websocket.WebSocket()
