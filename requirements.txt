@@ -2,4 +2,4 @@ discord
 colorama
 requests
 websocket
-flask
+Flask
