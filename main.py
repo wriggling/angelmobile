@@ -1,27 +1,30 @@
-import discord
-from discord.ext import commands
+import os
+import sys
+import json
+import time
+import requests
 import colorama
 from colorama import Fore
-import requests
 import websocket
 from keep_alive import keep_alive
-import os
 
-def clear(): return os.system('cls') if os.name == 'nt' else os.system('clear')
+status = "dnd" #online/dnd/idle
 
-stream_url = "https://www.twitch.tv/9711"
+GUILD_ID = os.getenv("GUILD_ID")
+CHANNEL_ID = os.getenv("CHANNEL_ID")
+SELF_MUTE = os.getenv("SELF_MUTE")
+SELF_DEAF = os.getenv("SELF_DEAF")
 
-token = os.getenv("token")
-prefix = os.getenv("prefix")
+usertoken = os.getenv("TOKEN")
+if not usertoken:
+  print("[ERROR] Please add a token inside Secrets.")
+  sys.exit()
 
-clear()
-
-
-headers = {"Authorization": token, "Content-Type": "application/json"}
+headers = {"Authorization": usertoken, "Content-Type": "application/json"}
 
 validate = requests.get('https://canary.discordapp.com/api/v9/users/@me', headers=headers)
 if validate.status_code != 200:
-  print(f"{Fore.RED}[ERROR] {Fore.RESET}Your token might be invalid. Please check it again.")
+  print("[ERROR] Your token might be invalid. Please check it again.")
   sys.exit()
 
 userinfo = requests.get('https://canary.discordapp.com/api/v9/users/@me', headers=headers).json()
@@ -29,84 +32,37 @@ username = userinfo["username"]
 discriminator = userinfo["discriminator"]
 userid = userinfo["id"]
 
-intents = discord.Intents.all()
-Angel = commands.Bot(command_prefix={prefix}, intents=intents, self_bot=True, help_command=None)
+def joiner(token, status):
+    ws = websocket.WebSocket()
+    ws.connect('wss://gateway.discord.gg/?v=9&encoding=json')
+    start = json.loads(ws.recv())
+    heartbeat = start['d']['heartbeat_interval']
+    auth = {"op": 2,"d": {"token": token,"properties": {"$os": "Windows 10","$browser": "Google Chrome","$device": "Windows"},"presence": {"status": status,"afk": False}},"s": None,"t": None}
+    vc = {"op": 4,"d": {"guild_id": GUILD_ID,"channel_id": CHANNEL_ID,"self_mute": SELF_MUTE,"self_deaf": SELF_DEAF}}
+    ws.send(json.dumps(auth))
+    ws.send(json.dumps(vc))
+    time.sleep(heartbeat / 1000)
+    ws.send(json.dumps({"op": 1,"d": None}))
 
-clear()
-def main():
+def run_joiner():
+  os.system("clear")
+  print(f'''                   
+{Fore.RED} _____             _ 
+{Fore.BLUE}|  _  |___ ___ ___| |
+{Fore.RED}|     |   | . | -_| |
+{Fore.BLUE}|__|__|_|_|_  |___|_|
+{Fore.RED}          |___|      
+{Fore.RESET}-----------{Fore.MAGENTA}------------
+{Fore.RESET}USER INFO:
+User: {Fore.MAGENTA}@{Fore.RESET}{username}
+ID: {Fore.MAGENTA}{userid}{Fore.RESET}
+VC: {Fore.MAGENTA}{CHANNEL_ID}
+Mute: {Fore.MAGENTA}{SELF_MUTE}{Fore.RESET}
+Deaf: {Fore.MAGENTA}{SELF_DEAF}{Fore.RESET}
+''')
+  while True:
+    joiner(usertoken, status)
+    time.sleep(30)
 
-@Angel.command()
-async def help(ctx):
-    await ctx.message.delete()
-    await ctx.send(
-        f"```ini **[@Angel Stream]** \n Streaming, Listening, Playing, Watching \n Example: \n **[{prefix}s Angel]** | **[{prefix}p Angel]** | **[{prefix}l Angel]** | **[{prefix}w Angel]** \n if you would like to view the aliases type **[{prefix}aliases]**``` ")
-
-
-@Angel.command()
-async def aliases(ctx):
-    await ctx.message.delete()
-    await ctx.send(
-        f"```ini > Streaming = **[{prefix}stream]** | **[{prefix}streaming]** | **{prefix}s** \n > Playing | **[{prefix}playing]** | **[{prefix}play]** | **[{prefix}p]** | **[{prefix}game]**  \n > Listening | **[{prefix}listen]** | **[{prefix}l]** \n > Watching | **[{prefix}watch]** | **[{prefix}w]**```")
-      
-@Angel.command(aliases=["streamings", "s"])
-async def stream(ctx, *, message):
-    await ctx.message.delete()
-    await ctx.send(content=f"``[ANGEL] Set Streaming to {message}``", delete_after=2),
-    stream = discord.Streaming(
-        name=message,
-        url=stream_url,
-    )
-    await Angel.change_presence(activity=stream)
-    print(f"{Fore.GREEN}[-] Set Streaming Status To: {message}")
-
-
-@Angel.command(aliases=["play", "p", "game"])
-async def playing(ctx, *, message):
-    await ctx.message.delete()
-    await ctx.send(content=f"``[ANGEL] Set Playing to {message}``", delete_after=2),
-    game = discord.Game(
-        name=message
-    )
-    await Angel.change_presence(activity=game)
-    print(f"{Fore.GREEN}[-] Set Playing Status To: {message}")
-
-
-@Angel.command(aliases=["listen", "l"])
-async def listening(ctx, *, message):
-    await ctx.message.delete()
-    await ctx.send(content=f"``[ANGEL] Set Listening to {message}``", delete_after=2),
-    await Angel.change_presence(
-        activity=discord.Activity(
-            type=discord.ActivityType.listening,
-            name=message,
-        ))
-    print(f"{Fore.GREEN}[-] Set Listening Status To: {message}")
-
-
-@Angel.command(aliases=["watch", "w"])
-async def watching(ctx, *, message):
-    await ctx.message.delete()
-    await ctx.send(content=f"``[ANGEL] Set Watching to {message}``", delete_after=2),
-    await Angel.change_presence(
-        activity=discord.Activity(
-            type=discord.ActivityType.watching,
-            name=message
-        ))
-    print(f"{Fore.GREEN}[-] Set Watching Status To: {message}")
-
-
-@Angel.command(aliases=["sav", "stopstatus", "stoplistening", "stopplaying", "stopwatching", "stopsreaming"])
-async def stopactivity(ctx):
-    await ctx.message.delete()
-    await ctx.send(content=f"``[ANGEL] Stop Activity``", delete_after=1),
-    await Angel.change_presence(activity=None, status=discord.Status.dnd)
-    print(f"{Fore.RED}Stopped Activity")
-
-@Angel.command()
-async def credits(ctx):
-    await ctx.message.delete()
-    await ctx.send(content=f"**[@AniTool Credits]** \n\n **``Creator: @cxcvc on Discord``** \n **Links: [Github](https://github.com/wriggling)**", delete_after=1)
-bot.run(token, bot=False)
-
-main()
 keep_alive()
+run_joiner()
