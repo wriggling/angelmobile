@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "Angel Status"
+name = "Angel VC Mobile"
 version = "1.0.0"
-description = "Angel Status but for Mobile"
+description = "Angel VC but for Mobile"
 authors = ["cxcvc"]
 
 [tool.poetry.dependencies]
