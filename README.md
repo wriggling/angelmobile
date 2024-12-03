@@ -8,9 +8,10 @@ By using this code, you are automating your Discord Account. This is against Dis
 
 ## Features:
 - 🔒 Secure
-- Has a Custom Prefix feature
-- Streaming, Playing, Watching, and Listening is able to be used.
-
+- Supports Stage Channels
+- Account will stay 24/7 online and connected (if you set it up correctly)
+- Supports all three status modes (Online, Idle, Do Not Disturb)
+- Use render.com to use
 
 
 ## Help and Support
