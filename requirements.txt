@@ -1,5 +1,5 @@
 discord
 colorama
 requests
-websocket
+websocket-client
 Flask
