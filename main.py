@@ -5,6 +5,8 @@ import time
 import requests
 import websocket
 from keep_alive import keep_alive
+import colorama
+from colorama import Fore
 
 status = "dnd" #online/dnd/idle
 
