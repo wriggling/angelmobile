@@ -1,5 +1,3 @@
-import os
-import sys
 import json
 import time
 import requests
@@ -8,7 +6,7 @@ from colorama import Fore
 import websocket
 from keep_alive import keep_alive
 
-status = "dnd" #online/dnd/idle
+status = "online" #online/dnd/idle
 
 GUILD_ID = os.getenv("GUILD_ID")
 CHANNEL_ID = os.getenv("CHANNEL_ID")
@@ -61,7 +59,7 @@ def joiner(token, status):
 
 def run_joiner():
   os.system("clear")
-  print(f'hi')
+  print(f"Logged in as {username}#{discriminator} ({userid}).")
   while True:
     joiner(usertoken, status)
     time.sleep(30)
