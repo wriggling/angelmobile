@@ -44,7 +44,7 @@ def joiner(token, status):
 
 def run_joiner():
   os.system("clear")
-  print(f"Logged in as {username}#{discriminator} ({userid}).")
+  print(f"{Fore.RED} Welcome.{Fore.RESET}")
   while True:
     joiner(usertoken, status)
     time.sleep(30)
