@@ -1,5 +1,3 @@
-discord
-colorama
 requests
 websocket-client
 Flask
