@@ -6,7 +6,7 @@ import requests
 import websocket
 from keep_alive import keep_alive
 
-status = "online" #online/dnd/idle
+status = "dnd" #online/dnd/idle
 
 GUILD_ID = os.getenv("GUILD_ID")
 CHANNEL_ID = os.getenv("CHANNEL_ID")
@@ -48,6 +48,22 @@ def run_joiner():
   while True:
     joiner(usertoken, status)
     time.sleep(30)
+
+print(f'''                   
+{Fore.RED} _____             _ 
+{Fore.BLUE}|  _  |___ ___ ___| |
+{Fore.RED}|     |   | . | -_| |
+{Fore.BLUE}|__|__|_|_|_  |___|_|
+{Fore.RED}          |___|      
+{Fore.RESET}-----------{Fore.MAGENTA}------------
+{Fore.RESET}USER INFO:
+User: {Fore.MAGENTA}@{Fore.RESET}{username}
+ID: {Fore.MAGENTA}{userid}{Fore.RESET}
+Srvr: {Fore.MAGENTA}{GUILD_ID}
+VC: {Fore.MAGENTA}{CHANNEL_ID}
+Mute: {Fore.MAGENTA}{SELF_MUTE}{Fore.RESET}
+Deaf: {Fore.MAGENTA}{SELF_DEAF}{Fore.RESET}
+''')
 
 keep_alive()
 run_joiner()
