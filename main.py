@@ -10,14 +10,6 @@ from colorama import Fore
 from console_ui import console
 
 console.startup()
-
-try:
-    console.info("Application starting")
-    # Your application's normal startup code goes here.
-
-except Exception:
-    console.exception("Application encountered an unexpected error")
-    raise
   
 status = "dnd" #online/dnd/idle
 
