@@ -15,8 +15,12 @@ status = "dnd" #online/dnd/idle
 
 GUILD_ID = os.getenv("GUILD_ID")
 CHANNEL_ID = os.getenv("CHANNEL_ID")
-SELF_MUTE = os.getenv("SELF_MUTE")
-SELF_DEAF = os.getenv("SELF_DEAF")
+
+SELF_MUTE = os.getenv("SELF_MUTE", "false").strip().lower() == "true"
+SELF_DEAF = os.getenv("SELF_DEAF", "false").strip().lower() == "true"
+
+console.info(f"SELF_MUTE configured: {SELF_MUTE}")
+console.info(f"SELF_DEAF configured: {SELF_DEAF}")
 
 usertoken = os.getenv("TOKEN")
 if not usertoken:
