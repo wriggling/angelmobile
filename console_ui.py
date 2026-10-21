@@ -1,6 +1,4 @@
 
-
-import os
 import sys
 import time
 import threading
@@ -8,7 +6,7 @@ import traceback
 from datetime import datetime
 from colorama import init
 
-# Preserve ANSI colors in supported terminals, including Linux hosts.
+# Preserve ANSI escape sequences in hosted logs.
 init(autoreset=False, strip=False)
 
 RESET = "\033[0m"
@@ -16,6 +14,7 @@ BOLD = "\033[1m"
 DIM = "\033[2m"
 CLEAR = "\033[2J\033[H"
 
+# Refresh banner after 30 minutes, when a new log arrives.
 REFRESH_SECONDS = 30 * 60
 
 # RGB gradient: purple -> blue -> cyan
@@ -26,31 +25,49 @@ GRADIENT = [
     (40, 230, 220),
 ]
 
+# Standard ANSI colors for regular log messages.
+STANDARD = {
+    "INFO": "\033[36m",       # Cyan
+    "SUCCESS": "\033[32m",    # Green
+    "WARNING": "\033[33m",    # Yellow
+    "ERROR": "\033[31m",      # Red
+    "TIME": "\033[90m",       # Gray
+    "LABEL": "\033[35m",      # Magenta
+}
+
 
 def rgb(r, g, b):
     return f"\033[38;2;{r};{g};{b}m"
 
 
 def gradient(text, colors=GRADIENT):
+    """Apply a left-to-right RGB gradient without changing spacing."""
     if not text:
         return ""
 
     result = []
-    length = max(len(text) - 1, 1)
+    visible_chars = [c for c in text if c not in ("\r", "\n")]
+    length = max(len(visible_chars) - 1, 1)
+    position_index = 0
 
-    for i, char in enumerate(text):
-        position = i / length * (len(colors) - 1)
+    for char in text:
+        if char in ("\r", "\n"):
+            result.append(RESET + char)
+            continue
+
+        position = position_index / length * (len(colors) - 1)
         index = min(int(position), len(colors) - 2)
         fraction = position - index
 
         start = colors[index]
         end = colors[index + 1]
 
-        r = int(start[0] + (end[0] - start[0]) * fraction)
-        g = int(start[1] + (end[1] - start[1]) * fraction)
-        b = int(start[2] + (end[2] - start[2]) * fraction)
+        r = round(start[0] + (end[0] - start[0]) * fraction)
+        g = round(start[1] + (end[1] - start[1]) * fraction)
+        b = round(start[2] + (end[2] - start[2]) * fraction)
 
         result.append(rgb(r, g, b) + char)
+        position_index += 1
 
     return "".join(result) + RESET
 
@@ -82,22 +99,36 @@ class ConsoleUI:
 |__|__|_|_|_  |___|_|
            |___|
 """
-        print(gradient(art))
-        print(gradient("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"))
-        print(gradient("              SYSTEM CONSOLE"))
-        print(gradient("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"))
-        print(f" {rgb(150, 150, 255)}Started:{RESET}  {self.timestamp()}")
-        print(f" {rgb(150, 150, 255)}Uptime:   {self.uptime()}")
-        print(f" {rgb(150, 150, 255)}Refresh:  Every 30 minutes")
-        print(gradient("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"))
+        # Color each line independently so ANSI resets never
+        # leak across lines or disturb the artwork's spacing.
+        for line in art.splitlines():
+            print(gradient(line))
+
+        print(gradient("----------------------------------------"))
+        print(gradient("             SYSTEM CONSOLE"))
+        print(gradient("----------------------------------------"))
+
+        print(
+            f" {STANDARD['LABEL']}Started:{RESET}  "
+            f"{self.timestamp()}"
+        )
+        print(
+            f" {STANDARD['LABEL']}Uptime:{RESET}   "
+            f"{self.uptime()}"
+        )
+        print(
+            f" {STANDARD['LABEL']}Refresh:{RESET}  "
+            f"Every 30 minutes"
+        )
+        print(gradient("----------------------------------------"))
         print()
 
     def clear(self):
         with self.lock:
-            # ANSI screen clearing works in supported terminals.
-            # Some hosted log viewers retain their historical output.
+            # Render's log viewer is historical, not a terminal.
+            # Only clear an actual interactive terminal.
             if sys.stdout.isatty():
-                print(CLEAR, end="")
+                print(CLEAR, end="", flush=True)
 
             self.last_refresh = time.monotonic()
             self.banner()
@@ -108,20 +139,20 @@ class ConsoleUI:
 
             print()
             print(
-                f"{DIM}Next refresh on the next log event "
-                f"after 30 minutes.{RESET}\n"
+                f"{DIM}Next refresh after 30 minutes, "
+                f"when another log arrives.{RESET}\n"
             )
 
     def refresh_if_needed(self):
         if time.monotonic() - self.last_refresh >= REFRESH_SECONDS:
             self.clear()
 
-    def log(self, level, message, color):
+    def log(self, level, message):
         with self.lock:
             self.refresh_if_needed()
 
-            time_color = rgb(130, 145, 170)
-            level_color = rgb(*color)
+            time_color = STANDARD["TIME"]
+            level_color = STANDARD.get(level, STANDARD["INFO"])
 
             line = (
                 f"{time_color}[{self.timestamp()}]{RESET} "
@@ -134,16 +165,16 @@ class ConsoleUI:
             print(line, flush=True)
 
     def info(self, message):
-        self.log("INFO", message, (60, 190, 255))
+        self.log("INFO", message)
 
     def success(self, message):
-        self.log("SUCCESS", message, (60, 230, 140))
+        self.log("SUCCESS", message)
 
     def warning(self, message):
-        self.log("WARNING", message, (255, 190, 50))
+        self.log("WARNING", message)
 
     def error(self, message):
-        self.log("ERROR", message, (255, 75, 95))
+        self.log("ERROR", message)
 
     def exception(self, message):
         with self.lock:
@@ -154,11 +185,13 @@ class ConsoleUI:
     def startup(self):
         with self.lock:
             if sys.stdout.isatty():
-                print(CLEAR, end="")
+                print(CLEAR, end="", flush=True)
+
             self.last_refresh = time.monotonic()
             self.banner()
             self.success("Console initialized")
-            self.info("RGB gradient enabled")
+            self.info("RGB banner gradient enabled")
+            self.info("Standard ANSI log colors enabled")
             self.info("Timestamped logging enabled")
             self.info("30-minute refresh configured")
 
