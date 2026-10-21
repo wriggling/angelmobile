@@ -6,7 +6,6 @@ import traceback
 from datetime import datetime
 from colorama import init
 
-# Preserve ANSI escape sequences in hosted logs.
 init(autoreset=False, strip=False)
 
 RESET = "\033[0m"
@@ -14,10 +13,9 @@ BOLD = "\033[1m"
 DIM = "\033[2m"
 CLEAR = "\033[2J\033[H"
 
-# Refresh banner after 30 minutes, when a new log arrives.
 REFRESH_SECONDS = 30 * 60
 
-# RGB gradient: purple -> blue -> cyan
+# RGB gradient for the ASCII art only.
 GRADIENT = [
     (190, 60, 255),
     (110, 90, 255),
@@ -25,15 +23,17 @@ GRADIENT = [
     (40, 230, 220),
 ]
 
-# Standard ANSI colors for regular log messages.
+# Standard ANSI colors for normal logs.
 STANDARD = {
-    "INFO": "\033[36m",       # Cyan
-    "SUCCESS": "\033[32m",    # Green
-    "WARNING": "\033[33m",    # Yellow
-    "ERROR": "\033[31m",      # Red
-    "TIME": "\033[90m",       # Gray
-    "LABEL": "\033[35m",      # Magenta
+    "INFO": "\033[36m",
+    "SUCCESS": "\033[32m",
+    "WARNING": "\033[33m",
+    "ERROR": "\033[31m",
+    "TIME": "\033[90m",
+    "LABEL": "\033[90m",
 }
+
+CYAN = "\033[36m"
 
 
 def rgb(r, g, b):
@@ -41,21 +41,15 @@ def rgb(r, g, b):
 
 
 def gradient(text, colors=GRADIENT):
-    """Apply a left-to-right RGB gradient without changing spacing."""
+    """Apply an RGB gradient without changing visible spacing."""
     if not text:
         return ""
 
     result = []
-    visible_chars = [c for c in text if c not in ("\r", "\n")]
-    length = max(len(visible_chars) - 1, 1)
-    position_index = 0
+    length = max(len(text) - 1, 1)
 
-    for char in text:
-        if char in ("\r", "\n"):
-            result.append(RESET + char)
-            continue
-
-        position = position_index / length * (len(colors) - 1)
+    for i, char in enumerate(text):
+        position = i / length * (len(colors) - 1)
         index = min(int(position), len(colors) - 2)
         fraction = position - index
 
@@ -67,7 +61,6 @@ def gradient(text, colors=GRADIENT):
         b = round(start[2] + (end[2] - start[2]) * fraction)
 
         result.append(rgb(r, g, b) + char)
-        position_index += 1
 
     return "".join(result) + RESET
 
@@ -92,47 +85,42 @@ class ConsoleUI:
         return f"{hours:02}:{minutes:02}:{seconds:02}"
 
     def banner(self):
-        art = r"""
- _____             _
-|  _  |___ ___ ___| |
-|     |   | . | -_| |
-|__|__|_|_|_  |___|_|
-           |___|
-"""
-        # Color each line independently so ANSI resets never
-        # leak across lines or disturb the artwork's spacing.
-        for line in art.splitlines():
+        art = [
+            r" _____             _",
+            r"|  _  |___ ___ ___| |",
+            r"|     |   | . | -_| |",
+            r"|__|__|_|_|_  |___|_|",
+            r"           |___|",
+        ]
+
+        # RGB gradient on the ASCII art only.
+        for line in art:
             print(gradient(line))
 
-        print(gradient("----------------------------------------"))
-        print(gradient("             SYSTEM CONSOLE"))
-        print(gradient("----------------------------------------"))
+        # Solid cyan title and dividers.
+        divider = "-" * 36
+        print(f"{CYAN}{divider}{RESET}")
+        print(f"{BOLD}{CYAN}{'SYSTEM CONSOLE':^36}{RESET}")
+        print(f"{CYAN}{divider}{RESET}")
 
-        print(
-            f" {STANDARD['LABEL']}Started:{RESET}  "
-            f"{self.timestamp()}"
-        )
-        print(
-            f" {STANDARD['LABEL']}Uptime:{RESET}   "
-            f"{self.uptime()}"
-        )
-        print(
-            f" {STANDARD['LABEL']}Refresh:{RESET}  "
-            f"Every 30 minutes"
-        )
-        print(gradient("----------------------------------------"))
+        # Standard gray labels.
+        label = STANDARD["LABEL"]
+        print(f"{label} Started:{RESET}  {self.timestamp()}")
+        print(f"{label} Uptime:  {RESET}  {self.uptime()}")
+        print(f"{label} Refresh: {RESET}  Every 30 minutes")
+
+        print(f"{CYAN}{divider}{RESET}")
         print()
 
     def clear(self):
         with self.lock:
-            # Render's log viewer is historical, not a terminal.
-            # Only clear an actual interactive terminal.
+            # Only clear interactive terminals, never hosted log history.
             if sys.stdout.isatty():
                 print(CLEAR, end="", flush=True)
 
             self.last_refresh = time.monotonic()
             self.banner()
-            print(gradient(" RECENT EVENTS"))
+            print(f"{CYAN} RECENT EVENTS{RESET}")
 
             for event in self.events[-self.max_events:]:
                 print(event)
