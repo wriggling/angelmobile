@@ -11,11 +11,6 @@ from console_ui import console
 
 console.startup()
 
-console.info("Checking application status")
-console.success("Configuration loaded")
-console.warning("A service responded slowly")
-console.error("A request failed")
-
 try:
     console.info("Application starting")
     # Your application's normal startup code goes here.
